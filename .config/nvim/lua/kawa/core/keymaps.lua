@@ -24,6 +24,18 @@ keymap.set("n", "<space><space>x", "<cmd>source %<CR>", { desc = "Sources data" 
 keymap.set("n", "<space>x", "<cmd>:.lua<CR>")
 keymap.set("v", "<space>x", "<cmd>:lua<CR>")
 
+-- disable arrows (to improve muscle memory)
+local msg = [[<cmd>echohl Error | echo "KEY DISABLED" | echohl None<CR>]]
+
+vim.api.nvim_set_keymap("i", "<Up>", "<C-o>" .. msg, { noremap = true, silent = false })
+vim.api.nvim_set_keymap("i", "<Down>", "<C-o>" .. msg, { noremap = true, silent = false })
+vim.api.nvim_set_keymap("i", "<Left>", "<C-o>" .. msg, { noremap = true, silent = false })
+vim.api.nvim_set_keymap("i", "<Right>", "<C-o>" .. msg, { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "<Up>", msg, { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "<Down>", msg, { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "<Left>", msg, { noremap = true, silent = false })
+vim.api.nvim_set_keymap("n", "<Right>", msg, { noremap = true, silent = false })
+
 -- custom script
 vim.api.nvim_create_user_command("Gen", function(opts)
 	local argument = opts.args or ""

@@ -1,0 +1,23 @@
+# Ghostty Config
+
+window-decoration = false
+font-size = 25
+cursor-style = block
+theme = catppuccin-macchiato
+font-feature = true
+window-width = 3740
+background-opacity = 0.7
+background-blur-radius = 15
+
+clipboard-read = allow
+clipboard-write = allow
+clipboard-trim-trailing-spaces = true
+
+quick-terminal-position = center
+auto-update = check
+
+keybind = cmd+s>j=goto_split:bottom
+keybind = cmd+s>k=goto_split:top
+keybind = cmd+s>h=goto_split:left
+keybind = cmd+s>l=goto_split:right
+keybind = global:shift+cmd+slash=toggle_quick_terminal

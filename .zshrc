@@ -21,6 +21,8 @@ export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""
 
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting web-search)
+plugins=(git vi-mode)
+INSERT_MODE_INDICATOR="%F{yellow}+%f"
 
 source $ZSH/oh-my-zsh.sh
 
@@ -56,6 +58,9 @@ export PATH="/Users/ivan/Documents/dev/nusmv/NuSMV-2.6.0-Darwin/bin:$PATH"
 
 # odin path
 export PATH="/usr/local/bin/Odin:$PATH"
+
+# zig 1.4 path
+export PATH="/usr/local/bin/zig-0.14.0-dev:$PATH"
 
 # go script
 export PATH="/Users/ivan/Documents/dev/go/roulette/:$PATH"
