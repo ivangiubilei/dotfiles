@@ -6,9 +6,9 @@ opt.number = true
 opt.relativenumber = true
 
 -- tabs and indentation
-opt.tabstop = 4 -- 2 spaces per tabs
-opt.shiftwidth = 4 -- 2 spaces for indent width
-opt.expandtab = true -- expand tabs to spaces
+opt.tabstop = 4
+opt.shiftwidth = 4
+opt.expandtab = true
 opt.autoindent = true
 
 opt.wrap = false
@@ -17,7 +17,7 @@ opt.wrap = false
 opt.ignorecase = true
 opt.smartcase = true
 
-opt.cursorline = true -- TODO da vedere
+opt.cursorline = true -- TODO: da vedere
 
 -- gui
 opt.termguicolors = true
