@@ -2,111 +2,145 @@ return {
 	"neovim/nvim-lspconfig",
 	event = { "BufReadPre", "BufNewFile" },
 	dependencies = {
+		"williamboman/mason.nvim",
+		"williamboman/mason-lspconfig.nvim",
+		"hrsh7th/nvim-cmp",
 		"hrsh7th/cmp-nvim-lsp",
+		"L3MON4D3/LuaSnip",
 		{ "antosha417/nvim-lsp-file-operations", config = true },
 		{ "folke/neodev.nvim", opts = {} },
 	},
 	config = function()
-		-- import lspconfig plugin
-		local lspconfig = require("lspconfig")
-
-		-- import mason_lspconfig plugin
 		local mason_lspconfig = require("mason-lspconfig")
-
-		-- import cmp-nvim-lsp plugin
 		local cmp_nvim_lsp = require("cmp_nvim_lsp")
+		local cmp = require("cmp")
+		local luasnip = require("luasnip")
+		local keymap = vim.keymap
 
-		local keymap = vim.keymap -- for conciseness
 		vim.api.nvim_create_autocmd("LspAttach", {
 			group = vim.api.nvim_create_augroup("UserLspConfig", {}),
 			callback = function(ev)
-				-- Buffer local mappings.
-				-- See `:help vim.lsp.*` for documentation on any of the below functions
 				local opts = { buffer = ev.buf, silent = true }
-
-				-- set keybinds
-				opts.desc = "Show LSP references"
-				keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts) -- show definition, references
-
-				opts.desc = "Go to declaration"
-				keymap.set("n", "gD", vim.lsp.buf.declaration, opts) -- go to declaration
-
-				opts.desc = "Show LSP definitions"
-				keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", opts) -- show lsp definitions
-
-				opts.desc = "Show LSP implementations"
-				keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts) -- show lsp implementations
-
-				opts.desc = "Show LSP type definitions"
-				keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts) -- show lsp type definitions
-
-				opts.desc = "See available code actions"
-				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts) -- see available code actions, in visual mode will apply to selection
-
-				opts.desc = "Smart rename"
-				keymap.set("n", "<leader>ra", vim.lsp.buf.rename, opts) -- smart rename
-
-				opts.desc = "Show buffer diagnostics"
-				keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", opts) -- show  diagnostics for file
-
-				opts.desc = "Show line diagnostics"
-				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts) -- show diagnostics for line
-
-				opts.desc = "Go to previous diagnostic"
-				keymap.set("n", "[d", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
-
-				opts.desc = "Go to next diagnostic"
-				keymap.set("n", "]d", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
-
-				opts.desc = "Show documentation for what is under cursor"
-				keymap.set("n", "K", vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
-
-				opts.desc = "Restart LSP"
-				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
+				keymap.set("n", "gR", "<cmd>Telescope lsp_references<CR>", opts)
+				keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+				keymap.set("n", "gd", "<cmd>Telescope lsp_definitions<CR>", opts)
+				keymap.set("n", "gi", "<cmd>Telescope lsp_implementations<CR>", opts)
+				keymap.set("n", "gt", "<cmd>Telescope lsp_type_definitions<CR>", opts)
+				keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
+				keymap.set("n", "<leader>ra", vim.lsp.buf.rename, opts)
+				keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics bufnr=0<CR>", opts)
+				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts)
+				keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
+				keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
+				keymap.set("n", "K", vim.lsp.buf.hover, opts)
+				keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
 			end,
 		})
 
-		-- used to enable autocompletion (assign to every lsp server config)
+		vim.diagnostic.config({
+			virtual_text = true,
+			signs = true,
+			underline = true,
+			update_in_insert = false,
+			severity_sort = true,
+		})
+
 		local capabilities = cmp_nvim_lsp.default_capabilities()
 
-		-- Change the Diagnostic symbols in the sign column (gutter)
-		-- (not in youtube nvim video)
-		local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
-		for type, icon in pairs(signs) do
-			local hl = "DiagnosticSign" .. type
-			vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
-		end
+		require("mason").setup()
+		mason_lspconfig.setup({
+			ensure_installed = { "lua_ls", "pyright", "clangd", "elixirls" },
+			automatic_installation = true,
+		})
 
-		mason_lspconfig.setup_handlers({
-			-- default handler for installed servers
-			function(server_name)
-				lspconfig[server_name].setup({
-					capabilities = capabilities,
-				})
-			end,
+		require("lspconfig").lua_ls.setup({
+			capabilities = capabilities,
+			flags = { debounce_text_changes = 300 },
+			settings = {
+				Lua = {
+					diagnostics = { globals = { "vim" } },
+					completion = { callSnippet = "Replace" },
+				},
+			},
+		})
 
-			["lua_ls"] = function()
-				-- configure lua server (with special settings)
-				lspconfig["lua_ls"].setup({
-					capabilities = capabilities,
-					settings = {
-						Lua = {
-							-- make the language server recognize "vim" global
-							diagnostics = {
-								globals = { "vim" },
-							},
-							completion = {
-								callSnippet = "Replace",
-							},
-						},
-					},
-				})
-			end,
-			lspconfig.gleam.setup({}),
-			lspconfig.elixirls.setup({
-				cmd = { "/opt/homebrew/bin/elixir-ls" },
+		require("lspconfig").html.setup({
+			capabilities = capabilities,
+			flags = { debounce_text_changes = 300 },
+			filetypes = { "html", "heex", "eex" },
+			settings = {
+				html = {
+					format = { enable = true, wrapLineLength = 120, indentInnerHtml = true },
+					validate = true,
+					hover = { documentation = true, references = true },
+				},
+			},
+		})
+
+		require("lspconfig").tailwindcss.setup({
+			capabilities = capabilities,
+			flags = { debounce_text_changes = 300 },
+			filetypes = { "html", "heex", "eelixir", "elixir" },
+			init_options = {
+				userLanguages = { elixir = "html-eex", eelixir = "html-eex", heex = "html" },
+			},
+		})
+
+		require("lspconfig").cssls.setup({
+			capabilities = capabilities,
+			flags = { debounce_text_changes = 300 },
+		})
+
+		-- require("lspconfig").pyright.setup({
+		-- 	capabilities = capabilities,
+		-- 	flags = { debounce_text_changes = 300 },
+		-- })
+
+		require("lspconfig").clangd.setup({
+			capabilities = capabilities,
+			flags = { debounce_text_changes = 300 },
+			cmd = { "clangd", "--header-insertion=never", "--clang-tidy", "--completion-style=detailed" },
+		})
+
+		require("lspconfig").gleam.setup({
+			capabilities = capabilities,
+			flags = { debounce_text_changes = 300 },
+		})
+
+		require("lspconfig").elixirls.setup({
+			cmd = { "/opt/homebrew/bin/elixir-ls" },
+			filetypes = { "elixir", "eelixir" },
+			root_dir = require("lspconfig.util").root_pattern("mix.exs"),
+			capabilities = capabilities,
+			flags = { debounce_text_changes = 300 },
+			settings = {
+				elixirLS = {
+					dialyzerEnabled = false,
+					fetchDeps = true,
+					suggestSpecs = true,
+					enableTestLenses = true,
+				},
+			},
+		})
+
+		cmp.setup({
+			snippet = {
+				expand = function(args)
+					luasnip.lsp_expand(args.body)
+				end,
+			},
+			mapping = cmp.mapping.preset.insert({
+				["<C-Space>"] = cmp.mapping.complete(),
+				["<CR>"] = cmp.mapping.confirm({ select = true }),
+				["<Tab>"] = cmp.mapping.select_next_item(),
+				["<S-Tab>"] = cmp.mapping.select_prev_item(),
 			}),
-			lspconfig.pyright.setup({}),
+			sources = cmp.config.sources({
+				{ name = "nvim_lsp" },
+				{ name = "luasnip" },
+				{ name = "buffer" },
+				{ name = "path" },
+			}),
 		})
 	end,
 }

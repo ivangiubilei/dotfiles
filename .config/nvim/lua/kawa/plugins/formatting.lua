@@ -20,17 +20,32 @@ return {
 				python = { "isort", "black" },
 				golang = { "gofmt" },
 				ocaml = { "ocamlformat" },
+				c = { "clang-format" },
+				elixir = { "mix" },
 			},
 			format_on_save = {
 				lsp_fallback = true,
 				async = false,
-				timeout_ms = 1000,
+				timeout_ms = 5000,
 			},
 		})
 
+		-- elixir formatter
+		conform.formatters.mix = {
+			command = "mix",
+			args = { "format", "-" },
+			stdin = true,
+			cwd = require("conform.util").root_file({ "mix.exs" }),
+		}
+
 		-- ocaml formatter configs
-		conform.formatters.ocamlformat= {
-			prepend_args = { "-p", "janestreet"},
+		conform.formatters.ocamlformat = {
+			prepend_args = { "-p", "janestreet" },
+		}
+
+		-- c formatter configs
+		conform.formatters.clang_format = {
+			-- prepend_args = {}
 		}
 		-- 	{ "--enable-outside-detected-project", "-p", "janestreet", "$FILENAME" },
 
@@ -38,7 +53,7 @@ return {
 			conform.format({
 				lsp_fallback = true,
 				async = false,
-				timeout_ms = 1000,
+				timeout_ms = 5000,
 			})
 		end, { desc = "Format file or range (in visual mode)" })
 	end,

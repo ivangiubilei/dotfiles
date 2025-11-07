@@ -13,9 +13,6 @@ return {
 				enable = true,
 			},
 			indent = { enable = true },
-			autotag = {
-				enable = true,
-			},
 			ensure_installed = {
 				"json",
 				"javascript",
@@ -35,6 +32,11 @@ return {
 				"vimdoc",
 				"c",
 				"ocaml",
+				"elixir",
+				"heex",
+				"html",
+				"eex",
+				"surface",
 			},
 
 			incremental_selection = {
