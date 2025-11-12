@@ -47,6 +47,9 @@ return {
 		keymap.set("n", "<leader>fs", "<cmd>Telescope grep_string<cr>", { desc = "Find string under cursor in cwd" })
 		keymap.set("n", "<leader>ft", "<cmd>TodoTelescope<cr>", { desc = "Find todos" })
 		keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "Fuzzy find buffers" })
+		keymap.set("n", "<leader>fh", function()
+			builtin.help_tags()
+		end, { desc = "Find Help Tags" })
 
 		keymap.set("n", "<leader>fv", function()
 			require("telescope.builtin").find_files({

@@ -48,78 +48,92 @@ return {
 		local capabilities = cmp_nvim_lsp.default_capabilities()
 
 		require("mason").setup()
+
+		local servers = {
+			"lua_ls",
+			"pyright",
+			"clangd",
+			"elixirls",
+			"html",
+			"tailwindcss",
+			"cssls",
+		}
+
 		mason_lspconfig.setup({
-			ensure_installed = { "lua_ls", "pyright", "clangd", "elixirls" },
+			ensure_installed = servers,
 			automatic_installation = true,
-		})
+			handlers = {
+				function(server_name)
+					require("lspconfig")[server_name].setup({
+						capabilities = capabilities,
+						flags = { debounce_text_changes = 300 },
+					})
+				end,
 
-		require("lspconfig").lua_ls.setup({
-			capabilities = capabilities,
-			flags = { debounce_text_changes = 300 },
-			settings = {
-				Lua = {
-					diagnostics = { globals = { "vim" } },
-					completion = { callSnippet = "Replace" },
-				},
-			},
-		})
+				["lua_ls"] = function()
+					require("lspconfig").lua_ls.setup({
+						capabilities = capabilities,
+						flags = { debounce_text_changes = 300 },
+						settings = {
+							Lua = {
+								diagnostics = { globals = { "vim" } },
+								completion = { callSnippet = "Replace" },
+							},
+						},
+					})
+				end,
 
-		require("lspconfig").html.setup({
-			capabilities = capabilities,
-			flags = { debounce_text_changes = 300 },
-			filetypes = { "html", "heex", "eex" },
-			settings = {
-				html = {
-					format = { enable = true, wrapLineLength = 120, indentInnerHtml = true },
-					validate = true,
-					hover = { documentation = true, references = true },
-				},
-			},
-		})
+				["html"] = function()
+					require("lspconfig").html.setup({
+						capabilities = capabilities,
+						flags = { debounce_text_changes = 300 },
+						filetypes = { "html", "heex", "eex" },
+						settings = {
+							html = {
+								format = { enable = true, wrapLineLength = 120, indentInnerHtml = true },
+								validate = true,
+								hover = { documentation = true, references = true },
+							},
+						},
+					})
+				end,
 
-		require("lspconfig").tailwindcss.setup({
-			capabilities = capabilities,
-			flags = { debounce_text_changes = 300 },
-			filetypes = { "html", "heex", "eelixir", "elixir" },
-			init_options = {
-				userLanguages = { elixir = "html-eex", eelixir = "html-eex", heex = "html" },
-			},
-		})
+				["tailwindcss"] = function()
+					require("lspconfig").tailwindcss.setup({
+						capabilities = capabilities,
+						flags = { debounce_text_changes = 300 },
+						filetypes = { "html", "heex", "eelixir", "elixir" },
+						init_options = {
+							userLanguages = { elixir = "html-eex", eelixir = "html-eex", heex = "html" },
+						},
+					})
+				end,
 
-		require("lspconfig").cssls.setup({
-			capabilities = capabilities,
-			flags = { debounce_text_changes = 300 },
-		})
+				["clangd"] = function()
+					require("lspconfig").clangd.setup({
+						capabilities = capabilities,
+						flags = { debounce_text_changes = 300 },
+						cmd = { "clangd", "--header-insertion=never", "--clang-tidy", "--completion-style=detailed" },
+					})
+				end,
 
-		-- require("lspconfig").pyright.setup({
-		-- 	capabilities = capabilities,
-		-- 	flags = { debounce_text_changes = 300 },
-		-- })
-
-		require("lspconfig").clangd.setup({
-			capabilities = capabilities,
-			flags = { debounce_text_changes = 300 },
-			cmd = { "clangd", "--header-insertion=never", "--clang-tidy", "--completion-style=detailed" },
-		})
-
-		require("lspconfig").gleam.setup({
-			capabilities = capabilities,
-			flags = { debounce_text_changes = 300 },
-		})
-
-		require("lspconfig").elixirls.setup({
-			cmd = { "/opt/homebrew/bin/elixir-ls" },
-			filetypes = { "elixir", "eelixir" },
-			root_dir = require("lspconfig.util").root_pattern("mix.exs"),
-			capabilities = capabilities,
-			flags = { debounce_text_changes = 300 },
-			settings = {
-				elixirLS = {
-					dialyzerEnabled = false,
-					fetchDeps = true,
-					suggestSpecs = true,
-					enableTestLenses = true,
-				},
+				["elixirls"] = function()
+					require("lspconfig").elixirls.setup({
+						cmd = { "/opt/homebrew/bin/elixir-ls" },
+						filetypes = { "elixir", "eelixir" },
+						root_dir = require("lspconfig.util").root_pattern("mix.x"),
+						capabilities = capabilities,
+						flags = { debounce_text_changes = 300 },
+						settings = {
+							elixirLS = {
+								dialyzerEnabled = false,
+								fetchDeps = true,
+								suggestSpecs = true,
+								enableTestLenses = true,
+							},
+						},
+					})
+				end,
 			},
 		})
 
